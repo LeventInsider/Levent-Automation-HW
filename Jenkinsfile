@@ -23,7 +23,7 @@ pipeline {
                     python3 -m venv venv
                     . venv/bin/activate
                     pip3 install --upgrade pip
-                    pip3 install -r levo_qa_automation/requirements.txt
+                    pip3 install -r Levent-Automation-HW/requirements.txt
                 '''
             }
         }
@@ -32,15 +32,15 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
-                    cd levo_qa_automation
+                    cd Levent-Automation-HW
                     mkdir -p screenshots
                     python -m pytest src/tests/test_insider_career.py -v --junitxml=test-results.xml
                 '''
             }
             post {
                 always {
-                    junit 'levo_qa_automation/test-results.xml'
-                    archiveArtifacts artifacts: 'levo_qa_automation/screenshots/*.png, levo_qa_automation/report.html', allowEmptyArchive: true
+                    junit 'Levent-Automation-HW/test-results.xml'
+                    archiveArtifacts artifacts: 'Levent-Automation-HW/screenshots/*.png, Levent-Automation-HW/report.html', allowEmptyArchive: true
                 }
             }
         }
