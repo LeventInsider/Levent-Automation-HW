@@ -20,7 +20,7 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 sh '''
-                    python -m venv venv
+                    python3 -m venv venv
                     . venv/bin/activate
                     pip3 install --upgrade pip
                     pip3 install -r levo_qa_automation/requirements.txt
