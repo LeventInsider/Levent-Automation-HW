@@ -24,7 +24,7 @@ def insert_test_result_to_mysql(test_name, status, duration, timestamp):
         safe_status = status.replace("'", "''")
         
         # Use Docker exec to run MySQL command inside the container
-        docker_cmd = f"""docker exec mysql-qa mysql -u {MYSQL_DB['user']} -p{MYSQL_DB['password']} \
+        docker_cmd = f"""sudo docker exec mysql-qa mysql -u {MYSQL_DB['user']} -p{MYSQL_DB['password']} \
                       {MYSQL_DB['database']} -e "INSERT INTO {MYSQL_DB['table']} \
                       (test_name, status, duration, timestamp) VALUES \
                       ('{safe_test_name}', '{safe_status}', {float(duration)}, '{formatted_timestamp}');"
