@@ -32,15 +32,14 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
-                    cd Levent-Automation-HW
                     mkdir -p screenshots
                     python -m pytest src/tests/test_insider_career.py -v --junitxml=test-results.xml
                 '''
             }
             post {
                 always {
-                    junit 'Levent-Automation-HW/test-results.xml'
-                    archiveArtifacts artifacts: 'Levent-Automation-HW/screenshots/*.png, Levent-Automation-HW/report.html', allowEmptyArchive: true
+                    junit 'test-results.xml'
+                    archiveArtifacts artifacts: 'screenshots/*.png, report.html', allowEmptyArchive: true
                 }
             }
         }
