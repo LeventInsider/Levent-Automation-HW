@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'python:3.8'
+        }
+    }
 
     environment {
         PYTHON_VERSION = '3.8'
@@ -20,7 +24,16 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 sh '''
-                    python -m venv venv
+                    # Check if Python is available
+                    if command -v python3 &> /dev/null; then
+                        python3 -m venv venv
+                    elif command -v python &> /dev/null; then
+                        python -m venv venv
+                    else
+                        echo "ERROR: Python not found. Please install Python 3.8 or later."
+                        exit 1
+                    fi
+                    
                     . venv/bin/activate
                     pip install --upgrade pip
                     pip install -r levo_qa_automation/requirements.txt
@@ -34,7 +47,7 @@ pipeline {
                     . venv/bin/activate
                     cd levo_qa_automation
                     mkdir -p screenshots
-                    python -m pytest src/tests/test_insider_career.py -v --junitxml=test-results.xml
+                    python3 -m pytest src/tests/test_insider_career.py -v --junitxml=test-results.xml
                 '''
             }
             post {
