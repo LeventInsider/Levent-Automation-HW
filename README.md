@@ -141,8 +141,6 @@ The project includes a Jenkins pipeline configuration that:
    - Verify Git repository access
    - Ensure all required plugins are installed
 
-4.
-
 ## Cleanup
 
 To stop and remove the MySQL container:

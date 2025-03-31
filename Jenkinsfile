@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         PYTHON_VERSION = '3.8'
+        VENV_PATH = 'venv'
     }
 
     options {
@@ -17,44 +18,47 @@ pipeline {
             }
         }
 
-        stage('Setup Python Environment') {
+        stage('Setup Python') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    . venv/bin/activate
-                    pip3 install --upgrade pip
-                    pip3 install -r requirements.txt
-                '''
+                sh """
+                    python${PYTHON_VERSION} -m venv ${VENV_PATH}
+                    . ${VENV_PATH}/bin/activate
+                    pip install -r requirements.txt
+                """
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    . venv/bin/activate
-                    mkdir -p screenshots
-                    python -m pytest src/tests/test_insider_career.py -v --junitxml=test-results.xml
-                '''
+                sh """
+                    . ${VENV_PATH}/bin/activate
+                    pytest src/tests/test_insider_career.py \
+                        --junitxml=test-results.xml \
+                        --html=report.html \
+                        -v
+                """
             }
-            post {
-                always {
-                    junit 'test-results.xml'
-                    archiveArtifacts artifacts: 'screenshots/*.png, report.html', allowEmptyArchive: true
-                }
+        }
+
+        stage('Archive Results') {
+            steps {
+                archiveArtifacts artifacts: 'report.html', allowEmptyArchive: true
+                junit 'test-results.xml'
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                cleanWs()
             }
         }
     }
 
     post {
-        success {
-            echo "Tests completed successfully!"
-        }
-        failure {
-            echo "Tests failed. Check the logs and screenshots for details."
-        }
         always {
-            echo "Cleaning up workspace..."
+            echo 'Cleaning up workspace...'
             cleanWs()
+            echo 'Tests completed. Check the logs and screenshots for details.'
         }
     }
 } 
