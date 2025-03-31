@@ -26,12 +26,13 @@ def driver(request):
         WebDriver: configured browser driver instance
     """
     if request.param == "chrome":
-        chrome_options = ChromeOptions()
-        for option in BROWSER_OPTIONS['chrome']:
-            chrome_options.add_argument(option)
-
-        service = ChromeService(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options)
+        try:
+            driver = webdriver.Chrome()
+            driver.implicitly_wait(5)
+            print("Chrome driver initialized successfully")
+        except Exception as e:
+            print(f"Failed to initialize Chrome: {e}")
+            raise
 
     elif request.param == "firefox":
         firefox_options = FirefoxOptions()

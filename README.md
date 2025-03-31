@@ -24,29 +24,39 @@ levo_qa_automation/
 └── screenshots/            # Test failure screenshots (created during test runs)
 ```
 
+## Prerequisites
+
+1. Python 3.8 or higher
+2. Chrome browser installed
+3. ChromeDriver matching your Chrome browser version
+4. Docker installed and running (for MySQL)
+
 ## Setup Instructions
 
-1. Install Python 3.8 or higher
+1. Create and activate a virtual environment:
+   ```bash
+   # Create virtual environment
+   python3 -m venv ~/python_venv
+   
+   # Activate virtual environment
+   source ~/python_venv/bin/activate
+   ```
 
 2. Install project dependencies:
-   ```
+   ```bash
    pip install -r requirements.txt
    ```
 
 3. Set up MySQL in Docker:
-   - The test framework requires a MySQL Docker container named "mysql-qa"
-   
-   ### Create and Start the MySQL Container
    ```bash
+   # Create and start MySQL container
    docker run --name mysql-qa \
      -e MYSQL_ROOT_PASSWORD=123qwe123 \
      -e MYSQL_DATABASE=test_results \
      -p 3306:3306 \
      -d mysql:8
-   ```
    
-   ### Create the Test Results Table
-   ```bash
+   # Create test results table
    docker exec -it mysql-qa mysql -u root -p123qwe123 test_results -e "
    CREATE TABLE IF NOT EXISTS ui_test_results (
        id INT AUTO_INCREMENT PRIMARY KEY,
@@ -56,75 +66,54 @@ levo_qa_automation/
        timestamp DATETIME NOT NULL
    );"
    ```
-   
-   ### Verify Database and Table Creation
+
+## Running Tests
+
+1. Ensure MySQL container is running:
    ```bash
-   docker exec -it mysql-qa mysql -u root -p123qwe123 -e "
-   SHOW DATABASES;
-   USE test_results;
-   SHOW TABLES;
-   DESCRIBE ui_test_results;"
-   ```
-   
-   ### Additional Docker Commands
-   ```bash
-   # Stop the MySQL container
-   docker stop mysql-qa
-   
-   # Start the MySQL container again
    docker start mysql-qa
-   
-   # Remove the container (deletes all data)
-   docker rm -f mysql-qa
    ```
+
+2. Run tests:
+   ```bash
+   # Run all tests
+   pytest src/tests/test_insider_career.py
    
-   - The configuration in `src/config/config.py` is set to use:
-     - host: mysql-qa (Docker container name)
-     - user: root
-     - password: 123qwe123
-     - database: test_results
-     - table: ui_test_results
+   # Run with HTML report
+   pytest src/tests/test_insider_career.py --html=report.html
+   ```
 
-4. Docker Requirements:
-   - Docker must be installed and running
-   - You must have permissions to execute `docker exec` commands
-   - The mysql-qa container must be running when tests are executed
+## Test Results
 
-## Running the Tests
+- Test results are stored in MySQL database
+- Screenshots of failed tests are saved in the `screenshots/` directory
+- HTML reports are generated when using the `--html` option
 
-You can run the tests using the provided shell script:
-```
-cd levo_qa_automation
-./run_tests.sh
-```
+## Database Configuration
 
-Or run them directly with pytest:
-```
-cd levo_qa_automation
-python -m pytest src/tests/test_insider_career.py -v
-```
+The test framework uses the following MySQL configuration:
+- Host: mysql-qa (Docker container name)
+- User: root
+- Password: 123qwe123
+- Database: test_results
+- Table: ui_test_results
 
-### Test Environment Options
+## Troubleshooting
 
-- Tests run on both Chrome and Firefox by default
-- Use `-v` flag for verbose output
+1. If Chrome doesn't open:
+   - Ensure Chrome browser is installed
+   - Check if ChromeDriver version matches your Chrome browser version
+   - Make sure no other Chrome instances are running
 
-## Test Case
+2. If MySQL connection fails:
+   - Verify Docker is running
+   - Check if mysql-qa container is running
+   - Ensure correct credentials are used
 
-The automated test performs the following steps:
-1. Navigate to the Insider homepage
-2. Accept cookies
-3. Navigate to the Careers page
-4. Verify required sections exist on the Careers page
-5. Navigate to the QA Careers page
-6. Click on "See all QA jobs" button
-7. Filter jobs for Istanbul location
-8. Verify job listings contain both QA and Istanbul
-9. Verify the "View Role" button redirects to a job details page
+## Cleanup
 
-## Reporting
-
-- Test results are recorded in the MySQL database inside the mysql-qa Docker container
-- The framework uses `docker exec` to execute MySQL commands inside the container
-- Screenshots are automatically captured on test failures
-- Console output provides detailed progress information 
+To stop and remove the MySQL container:
+```bash
+docker stop mysql-qa
+docker rm -f mysql-qa
+``` 
