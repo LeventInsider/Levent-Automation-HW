@@ -125,6 +125,7 @@ class QACareersPage(BasePage):
             bool: True if valid jobs exist, False otherwise
         """
         print("Looking for QA positions in Istanbul...")
+        time.sleep(10)
 
         job_texts = self.driver.execute_script("""
             return Array.from(document.querySelectorAll(".position-list-item")).map(el => el.innerText);

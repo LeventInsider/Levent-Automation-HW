@@ -36,6 +36,7 @@ def driver(request):
 
     elif request.param == "firefox":
         firefox_options = FirefoxOptions()
+        driver.implicitly_wait(5)
         for option in BROWSER_OPTIONS['firefox']:
             firefox_options.add_argument(option)
             
