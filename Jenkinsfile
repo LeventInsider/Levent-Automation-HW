@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_VERSION = '3.8'
         VENV_PATH = 'venv'
     }
 
@@ -21,7 +20,7 @@ pipeline {
         stage('Setup Python') {
             steps {
                 sh """
-                    python${PYTHON_VERSION} -m venv ${VENV_PATH}
+                    python3 -m venv ${VENV_PATH}
                     . ${VENV_PATH}/bin/activate
                     pip install -r requirements.txt
                 """
