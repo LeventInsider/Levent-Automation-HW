@@ -31,7 +31,7 @@ pipeline {
             steps {
                 sh """
                     . ${VENV_PATH}/bin/activate
-                    pytest src/tests/test_insider_career.py \
+                    PYTHONPATH=$PYTHONPATH:$(pwd) pytest src/tests/test_insider_career.py \
                         --junitxml=test-results.xml \
                         --html=report.html \
                         -v
