@@ -35,13 +35,14 @@ def driver(request):
             raise
 
     elif request.param == "firefox":
-        firefox_options = FirefoxOptions()
-        driver.implicitly_wait(5)
-        for option in BROWSER_OPTIONS['firefox']:
-            firefox_options.add_argument(option)
-            
-        service = FirefoxService(GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=service, options=firefox_options)
+        try:
+            firefox_options = FirefoxOptions()
+            driver = webdriver.Firefox(options=firefox_options)
+            driver.implicitly_wait(5)
+            print("Firefox driver initialized successfully")
+        except Exception as e:
+            print(f"Failed to initialize Firefox: {e}")
+            raise
 
     driver.maximize_window()
     yield driver
@@ -49,7 +50,7 @@ def driver(request):
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item):
+def pytest_runtest_makereport(item, call):
     """
     Pytest hook to handle test result reporting:
     - Inserts test result to MySQL database
@@ -57,6 +58,7 @@ def pytest_runtest_makereport(item):
     
     Args:
         item: pytest test item
+        call: pytest call object
     """
     # Get the test result
     outcome = yield
@@ -66,29 +68,30 @@ def pytest_runtest_makereport(item):
     if report.when == "call":
         test_name = item.name
         status = "passed" if report.passed else "failed"
-        duration = getattr(report, 'duration', 0)
-        timestamp = datetime.utcnow()
+        duration = report.duration
 
         # Write results to MySQL database
         try:
             insert_test_result_to_mysql(
                 test_name=test_name,
                 status=status,
-                duration=duration,
-                timestamp=timestamp
+                duration=duration
             )
+            print(f"📊 Test result saved to mysql-qa database: {test_name} | {status} | {duration:.2f}s")
         except Exception as e:
-            print(f"⚠️ Error saving to database: {e}")
+            print(f"Failed to save test result to database: {e}")
 
         # If the test fails, take a screenshot
         if report.failed:
-            driver = item.funcargs.get("driver", None)
-            if driver:
+            try:
                 screenshot_dir = "screenshots"
-                os.makedirs(screenshot_dir, exist_ok=True)
+                if not os.path.exists(screenshot_dir):
+                    os.makedirs(screenshot_dir)
                 screenshot_path = os.path.join(screenshot_dir, f"{test_name}.png")
-                driver.save_screenshot(screenshot_path)
+                item.funcargs["driver"].save_screenshot(screenshot_path)
                 print(f"🖼 Screenshot captured: {screenshot_path}")
+            except Exception as e:
+                print(f"Failed to capture screenshot: {e}")
 
 
 # Configure retry for flaky tests
