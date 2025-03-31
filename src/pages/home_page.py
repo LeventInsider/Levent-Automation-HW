@@ -25,7 +25,7 @@ class HomePage(BasePage):
         """
         Opens the Insider homepage
         """
-        print(f"🏠 Accessing main portal: {self.url}")
+        print(f"Accessing main portal: {self.url}")
         self.driver.get(self.url)
         self.wait_for_page_to_load()
 
@@ -37,7 +37,7 @@ class HomePage(BasePage):
             bool: True if title contains 'Insider', else False
         """
         title = self.driver.title
-        print(f"📝 Site identification: {title}")
+        print(f"Site identification: {title}")
         return "Insider" in title
 
     def accept_cookies(self):
@@ -50,7 +50,7 @@ class HomePage(BasePage):
         """
         Navigates to the Careers page through the Company menu
         """
-        print("📂 Accessing company information...")
+        print("Accessing company information...")
         self.click_element(By.XPATH, self.company_menu_xpath)
-        print("💼 Selecting career opportunities...")
+        print("Selecting career opportunities...")
         self.click_element(By.XPATH, self.careers_link_xpath) 
