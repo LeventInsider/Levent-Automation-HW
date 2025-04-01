@@ -139,7 +139,7 @@ The project includes a Jenkins pipeline configuration that:
 3. If Jenkins pipeline fails:
    - Check Jenkins logs for detailed error messages
    - Verify Git repository access
-   - Ensure all required plugins are installed
+   - Ensure all required plugins are installed.
 
 ## Cleanup
 
